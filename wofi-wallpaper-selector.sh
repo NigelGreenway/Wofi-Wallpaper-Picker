@@ -10,14 +10,16 @@ mkdir -p "$CACHE_DIR"
 _wwp_has() { command -v "$1" &>/dev/null; }
 
 set_wallpaper() {
-  if _wwp_has swaybg; then
-    pkill -x swaybg
-    swaybg --image "$1" --mode fill &
-  elif _wwp_has swaymsg; then
-    swaymsg output "*" bg "$1" fill
-  else
-    /home/blackgaze/Scripts/hyprWallpaper.sh "$original_path" &
-  fi
+    [[ -z "$1" ]] && return 1
+
+    if _wwp_has swaybg; then
+        pkill -x swaybg 2>/dev/null || true
+        swaybg --image "$1" --mode fill &
+    elif _wwp_has swaymsg; then
+        swaymsg output "*" bg "$1" fill
+    else
+        /home/blackgaze/Scripts/hyprWallpaper.sh "$1" &
+    fi
 }
 
 # Function to generate thumbnail
