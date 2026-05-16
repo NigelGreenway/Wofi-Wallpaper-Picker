@@ -11,9 +11,10 @@ has() { command -v "$1" &>/dev/null; }
 
 set_wallpaper() {
   if has swaybg; then
-    swaybg --image "$1" &
+    pkill -x swaybg
+    swaybg --image "$1" --mode fill &
   elif has swaymsg; then
-    swaymsg output "*" bg "$1" fill &
+    swaymsg output "*" bg "$1" fill
   else
     /home/blackgaze/Scripts/hyprWallpaper.sh "$original_path" &
   fi
