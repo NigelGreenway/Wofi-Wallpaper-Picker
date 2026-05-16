@@ -7,6 +7,18 @@ THUMBNAIL_HEIGHT="141"
 # Create cache directory if it doesn't exist
 mkdir -p "$CACHE_DIR"
 
+has() { command -v "$1" &>/dev/null; }
+
+set_wallpaper() {
+  if has swaybg; then
+    swaybg --image "$1"
+  elif has swaymsg; then
+    swaymsg output "*" bg "$1" fill
+  else
+    /home/blackgaze/Scripts/hyprWallpaper.sh "$original_path"
+  fi
+}
+
 # Function to generate thumbnail
 generate_thumbnail() {
     local input="$1"
@@ -79,7 +91,7 @@ if [ -n "$selected" ]; then
     # Ensure a valid wallpaper was found before proceeding
     if [ -n "$original_path" ]; then
         # Set wallpaper using swww with the original file
-        /home/blackgaze/Scripts/hyprWallpaper.sh "$original_path"
+        set_wallpaper "$original_path"
 
         # Save the selection for persistence
         echo "$original_path" > "$HOME/.cache/current_wallpaper"
