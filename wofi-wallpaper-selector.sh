@@ -7,13 +7,13 @@ THUMBNAIL_HEIGHT="141"
 # Create cache directory if it doesn't exist
 mkdir -p "$CACHE_DIR"
 
-has() { command -v "$1" &>/dev/null; }
+_wwp_has() { command -v "$1" &>/dev/null; }
 
 set_wallpaper() {
-  if has swaybg; then
+  if _wwp_has swaybg; then
     pkill -x swaybg
     swaybg --image "$1" --mode fill &
-  elif has swaymsg; then
+  elif _wwp_has swaymsg; then
     swaymsg output "*" bg "$1" fill
   else
     /home/blackgaze/Scripts/hyprWallpaper.sh "$original_path" &
