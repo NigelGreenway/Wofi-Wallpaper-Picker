@@ -15,7 +15,7 @@ set_wallpaper() {
   elif has swaymsg; then
     swaymsg output "*" bg "$1" fill &
   else
-    /home/blackgaze/Scripts/hyprWallpaper.sh "$original_path"
+    /home/blackgaze/Scripts/hyprWallpaper.sh "$original_path" &
   fi
 }
 
