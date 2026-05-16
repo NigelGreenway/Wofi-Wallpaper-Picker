@@ -43,20 +43,20 @@ magick -size "${THUMBNAIL_WIDTH}x${THUMBNAIL_HEIGHT}" xc:#1e1e2e \
 generate_menu() {
     # Add random/shuffle option with a name that sorts first (using ! prefix)
     echo -en "img:$SHUFFLE_ICON\x00info:!Random Wallpaper\x1fRANDOM\n"
-    
+
     # Then add all wallpapers
     for img in "$WALLPAPER_DIR"/*.{jpg,jpeg,png}; do
         # Skip if no matches found
         [[ -f "$img" ]] || continue
-        
+
         # Generate thumbnail filename
         thumbnail="$CACHE_DIR/$(basename "${img%.*}").png"
-        
+
         # Generate thumbnail if it doesn't exist or is older than source
         if [[ ! -f "$thumbnail" ]] || [[ "$img" -nt "$thumbnail" ]]; then
             generate_thumbnail "$img" "$thumbnail"
         fi
-        
+
         # Output menu item (filename and path)
         echo -en "img:$thumbnail\x00info:$(basename "$img")\x1f$img\n"
     done
