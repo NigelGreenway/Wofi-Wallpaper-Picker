@@ -1,13 +1,36 @@
 #!/usr/bin/env bash
+
+_wwp_has() { command -v "$1" &>/dev/null; }
+
+_wwp_notify_send() {
+    [[ -z "$1" ]] && return 1
+
+    if _wwp_has notify-send; then
+        IFS='=' read -r key value <<< "$1"
+
+        echo "$key: $value"
+
+        if [ "$value" == "normal" ] && [ "$NOTIFICATION_LEVEL" -gt 0 ]; then
+            notify-send "$@"
+        fi
+
+        if [ "$value" == "critical" ]; then
+            notify-send "$@"
+        fi
+    fi
+}
+
 # Configuration
-WALLPAPER_DIR="$HOME/Pictures/wallpapers"  # Change this to your wallpaper directory
-CACHE_DIR="$HOME/.cache/wallpaper-selector"
-THUMBNAIL_WIDTH="250"  # Size of thumbnails in pixels (16:9)
-THUMBNAIL_HEIGHT="141"
+if [ ! -f "$HOME/.config/wallpaper-picker/config" ]; then
+    _wwp_notify_send --urgency=critical "Wallpaper Picker Error" "Unable to load config file. Please see the README.md file for instructions"
+    exit 1
+fi
+
+source "$HOME/.config/wallpaper-picker/config"
+
 # Create cache directory if it doesn't exist
 mkdir -p "$CACHE_DIR"
 
-_wwp_has() { command -v "$1" &>/dev/null; }
 
 set_wallpaper() {
     [[ -z "$1" ]] && return 1
@@ -33,7 +56,7 @@ generate_thumbnail() {
 SHUFFLE_ICON="$CACHE_DIR/shuffle_thumbnail.png"
 # Create a properly sized shuffle icon thumbnail
 magick -size "${THUMBNAIL_WIDTH}x${THUMBNAIL_HEIGHT}" xc:#1e1e2e \
-    \( "$HOME/Repos/wallpaper-selector/assets/shuffle.png" -resize "80x80" \) \
+    \( "$INSTALL_DIR/assets/shuffle.png" -resize "80x80" \) \
     -gravity center -composite "$SHUFFLE_ICON"
 
 # Generate thumbnails and create menu items
@@ -68,7 +91,7 @@ selected=$(generate_menu | wofi --show dmenu \
     --insensitive \
     --sort-order=default \
     --prompt "Select Wallpaper" \
-    --conf ~/.config/wofi/wallpaper.conf \
+    --conf "${INSTALL_DIR}/wofi/wallpaper.conf" \
   )
 
 # Set wallpaper if one was selected
@@ -97,8 +120,11 @@ if [ -n "$selected" ]; then
         echo "$original_path" > "$HOME/.cache/current_wallpaper"
 
         # Optional: Notify user
-        notify-send "Wallpaper" "Wallpaper has been updated" -i "$original_path"
+        _wwp_notify_send --urgency=normal "Wallpaper" "Wallpaper has been updated" -i "$original_path"
     else
-        notify-send "Wallpaper Error" "Could not find the original wallpaper file."
+        _wwp_notify_send --urgency=critical "Wallpaper Error" "Could not find the original wallpaper file."
     fi
 fi
+
+# Set an exit code so the process isn't running in the background
+exit 0

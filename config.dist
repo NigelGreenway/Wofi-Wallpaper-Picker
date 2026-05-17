@@ -1,0 +1,7 @@
+INSTALL_DIR="$HOME/.config/wofi/plugins/Wofi-Wallpaper-Picker"
+WALLPAPER_DIR="$HOME/.config/wallpapers"
+CACHE_DIR="$HOME/.cache/wallpaper-picker"
+THUMBNAIL_WIDTH="250"
+THUMBNAIL_HEIGHT="141"
+NOTIFICATION_LEVEL=0
+
