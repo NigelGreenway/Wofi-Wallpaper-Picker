@@ -1,6 +1,6 @@
 # Wofi Wallpaper Picker
 
-This Wofi widget allows for previewing multiple wallpapers and choosing one to be set. The wallpapers are set using swww.
+This Wofi widget allows for previewing multiple wallpapers and choosing one to be set. The wallpapers are set by detecting what's installed on your machine.
 
 ![alt text](assets/screenshot.png "Wofi Wallpaper Picker")
 

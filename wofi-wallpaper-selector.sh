@@ -7,6 +7,21 @@ THUMBNAIL_HEIGHT="141"
 # Create cache directory if it doesn't exist
 mkdir -p "$CACHE_DIR"
 
+_wwp_has() { command -v "$1" &>/dev/null; }
+
+set_wallpaper() {
+    [[ -z "$1" ]] && return 1
+
+    if _wwp_has swaybg; then
+        pkill -x swaybg 2>/dev/null || true
+        swaybg --image "$1" --mode fill &
+    elif _wwp_has swaymsg; then
+        swaymsg output "*" bg "$1" fill
+    else
+        /home/blackgaze/Scripts/hyprWallpaper.sh "$1" &
+    fi
+}
+
 # Function to generate thumbnail
 generate_thumbnail() {
     local input="$1"
@@ -17,9 +32,6 @@ generate_thumbnail() {
 # Create shuffle icon thumbnail on the fly
 SHUFFLE_ICON="$CACHE_DIR/shuffle_thumbnail.png"
 # Create a properly sized shuffle icon thumbnail
-# magick -size "${THUMBNAIL_WIDTH}x${THUMBNAIL_HEIGHT}" xc:#1e1e2e \
-#     "$HOME/Repos/wallpaper-selector/assets/shuffle.png" -resize "120x120" -gravity center -composite \
-#     "$SHUFFLE_ICON"
 magick -size "${THUMBNAIL_WIDTH}x${THUMBNAIL_HEIGHT}" xc:#1e1e2e \
     \( "$HOME/Repos/wallpaper-selector/assets/shuffle.png" -resize "80x80" \) \
     -gravity center -composite "$SHUFFLE_ICON"
@@ -28,20 +40,20 @@ magick -size "${THUMBNAIL_WIDTH}x${THUMBNAIL_HEIGHT}" xc:#1e1e2e \
 generate_menu() {
     # Add random/shuffle option with a name that sorts first (using ! prefix)
     echo -en "img:$SHUFFLE_ICON\x00info:!Random Wallpaper\x1fRANDOM\n"
-    
+
     # Then add all wallpapers
     for img in "$WALLPAPER_DIR"/*.{jpg,jpeg,png}; do
         # Skip if no matches found
         [[ -f "$img" ]] || continue
-        
+
         # Generate thumbnail filename
         thumbnail="$CACHE_DIR/$(basename "${img%.*}").png"
-        
+
         # Generate thumbnail if it doesn't exist or is older than source
         if [[ ! -f "$thumbnail" ]] || [[ "$img" -nt "$thumbnail" ]]; then
             generate_thumbnail "$img" "$thumbnail"
         fi
-        
+
         # Output menu item (filename and path)
         echo -en "img:$thumbnail\x00info:$(basename "$img")\x1f$img\n"
     done
@@ -79,7 +91,7 @@ if [ -n "$selected" ]; then
     # Ensure a valid wallpaper was found before proceeding
     if [ -n "$original_path" ]; then
         # Set wallpaper using swww with the original file
-        /home/blackgaze/Scripts/hyprWallpaper.sh "$original_path"
+        set_wallpaper "$original_path"
 
         # Save the selection for persistence
         echo "$original_path" > "$HOME/.cache/current_wallpaper"
